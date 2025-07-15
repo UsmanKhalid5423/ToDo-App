@@ -20,12 +20,14 @@ import { AppSidebar } from "@/components/ui/app-sidebar"
 export default function Layout({ children }: { children?: React.ReactNode }) {
   return (
     <SidebarProvider>
-      <AppSidebar />
-      <main>
-        <SidebarTrigger />
-        {children}
-        <Outlet />
-      </main>
+      <div className="flex min-h-screen w-full">
+        <AppSidebar />
+        <main className="flex-1 p-6 bg-gray-50 overflow-x-hidden">
+          <SidebarTrigger />
+          {children}
+          <Outlet />
+        </main>
+      </div>
     </SidebarProvider>
   )
 }

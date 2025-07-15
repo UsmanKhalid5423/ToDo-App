@@ -20,20 +20,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useQueryClient } from "@tanstack/react-query";
 
-import { useGetAllTaskTypes, useAddTaskTypes,useDeleteTaskTypes,useGetByIdTaskTypes,getByIdTaskTypes,useUpdateTaskTypes } from '../../hooks/common/query/index'
+import { useGetAllTaskTypes,useGetByIdTaskTypes,getByIdTaskTypes, } from '../../hooks/common/query/index'
+import { useAddTaskTypes,useDeleteTaskTypes, useUpdateTaskTypes } from '../../hooks/common/mutation/index'
 
 type TaskType = {
   n_Id: number,
   s_Description: string
 }
 
-type AddTaskType = {
-  s_Description: string
-}
 
 export default function TaskTypesList() {
   const [taskTypes, setTaskTypes] = useState<TaskType[]>([])
-  const [addtaskTypes, setAddTaskTypes] = useState<AddTaskType>()
   const [search, setSearch] = useState("")
   const [isAddNew, setIsAddNew] = useState(false)
   const [isEdit, setIsEdit] = useState(false)
@@ -144,7 +141,6 @@ const {
     if (data) {
       setSeletedEditId(id);
       setAddedTaskDescription(data.s_Description);
-      // setIsAddNew(true);
       setIsEdit(true);
       setIsAddNew(false);
     }
@@ -187,7 +183,7 @@ const {
 
   return (
     <>
-      <div className="w-full min-w-full min-h-screen p-6 bg-gray-50">
+        <div className="min-h-screen w-full px-6 py-6 bg-gray-50 overflow-x-hidden">
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-2xl font-semibold">Task Types</h1>
           <div className="flex gap-2 w-full md:w-auto">
@@ -195,7 +191,7 @@ const {
               placeholder="Search by name..."
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              className="md:w-64"
+              className="md:w-96"
             />
             <Button onClick={() =>{ setIsEdit(false); setIsAddNew(true)}}>
               Add New Task Type
@@ -205,7 +201,7 @@ const {
 
         <div className="w-full rounded-md border overflow-x-auto">
           <Table className="w-full table-auto min-w-[100%]">
-            <TableCaption>A list of your task types.</TableCaption>
+            {/* <TableCaption>A list of your task types.</TableCaption> */}
             <TableHeader>
               <TableRow>
                 <TableHead className="w-[100px]">ID</TableHead>
