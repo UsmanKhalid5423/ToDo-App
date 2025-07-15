@@ -30,7 +30,9 @@ import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
 import { Login } from "./pages/login"
 import Layout from "./layout"
 import Dashboard from "./pages/dashboard"
-import TaskTypesList from "./pages/taskTypes/list" // New page component
+import TaskTypesList from "./pages/taskTypes"
+import Priorities from "./pages/priorities" 
+
 
 function App() {
   return (
@@ -42,6 +44,7 @@ function App() {
         <Route path="/" element={<Layout />}>
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="task-types" element={<TaskTypesList />} />
+          <Route path="priorities" element={<Priorities />} />
         </Route>
       </Routes>
     </Router>
