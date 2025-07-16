@@ -23,4 +23,10 @@ export const apiUrl = {
   DELETE_PROJECT: "Project/Delete",
   GET_BY_ID_PROJECT: "Project/Get",
   UPDATE_PROJECT: "Project/Update",
+  // urls for Bucket
+  GET_ALLL_BUCKETS: "Bucket/GetAll",
+  ADD_BUCKET: "Bucket/Create",
+  DELETE_BUCKET: "Bucket/Delete",
+  GET_BY_ID_BUCKET: "Bucket/Get",
+  UPDATE_BUCKET: "Bucket/Update",
 };

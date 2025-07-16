@@ -185,7 +185,8 @@ export function AppSidebar() {
                 projectDetails.map((project) => (
                   <SidebarMenuItem key={project.s_Description} className="ml-6">
                     <SidebarMenuButton asChild>
-                      <Link to={`/project/${project.n_Id}`}>
+                      <Link to={`/project-details/${project.n_Id}`}>
+                        {/* <Link to={`/project-details`}> */}
                         <Folder className="mr-2 h-4 w-4 text-muted-foreground" />
                         <span>{project.s_Description}</span>
                       </Link>
