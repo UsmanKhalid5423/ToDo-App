@@ -21,23 +21,23 @@ import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 
 import {
-  useGetAllPriorities,
-  getByIdPriorities,
+  useGetAllProject,
+  getByIdStatus,
 } from "../../hooks/common/query/index";
 import {
-  useAddPriority,
-  useUpdatePriority,
-  useDeletePriority,
+  useAddProject,
+  useUpdateStatus,
+  useDeleteStatus,
 } from "../../hooks/common/mutation/index";
 
 import { keys } from "../../hooks/common/keys";
 
-type PrioritiesInterfance = {
+type ProjectInterfance = {
   n_Id: number;
   s_Description: string;
 };
 
-export default function Priorities() {
+export default function Project() {
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
@@ -48,41 +48,32 @@ export default function Priorities() {
   const [addedTaskDescription, setAddedTaskDescription] = useState("");
   const [inputError, setInputError] = useState("");
 
-  const [prioritiesDetails, setPrioritiesDetails] = useState<
-    PrioritiesInterfance[]
-  >([]);
+  const [projectDetails, setProjectDetails] = useState<ProjectInterfance[]>([]);
 
-  const { data: prioritiesData } = useGetAllPriorities();
-  const addPriorityMutation = useAddPriority();
-  const updatePriorityMutation = useUpdatePriority();
-  const deletePriorityMutation = useDeletePriority(seletedId);
+  const { data: projectsData } = useGetAllProject();
+  const addProjectMutation = useAddProject();
+  const updateStatusMutation = useUpdateStatus();
+  const deleteStatusMutation = useDeleteStatus(seletedId);
 
   // const { data: priorityDetails, refetch: refetchTaskType } =
   //   useGetByIdPriorities(seletedEditId > 0 ? seletedEditId : 0);
 
   useEffect(() => {
-    if (prioritiesData) {
-      setPrioritiesDetails(prioritiesData);
+    if (projectsData) {
+      setProjectDetails(projectsData);
     }
-  }, [
-    prioritiesData,
-    seletedId,
-    seletedEditId,
-    //priorityDetails,
-    isEdit,
-    isAddNew,
-  ]);
+  }, [projectsData, seletedId, seletedEditId, isEdit, isAddNew]);
 
-  const filteredTaskTypes = prioritiesDetails.filter((priority) =>
-    priority.s_Description.toLowerCase().includes(search.toLowerCase())
+  const filteredTaskTypes = projectDetails.filter((project) =>
+    project.s_Description.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSave = () => {
     if (addedTaskDescription.trim() === "") {
-      setInputError("Priority must not be empty");
+      setInputError("Project must not be empty");
       return;
     }
-    addPriorityMutation.mutate(
+    addProjectMutation.mutate(
       {
         s_Description: addedTaskDescription,
       },
@@ -95,21 +86,21 @@ export default function Priorities() {
         },
         onError: (error) => {
           console.error("Error adding Priority:", error);
-          setInputError("Failed to add priority");
+          setInputError("Failed to add Project");
         },
       }
     );
 
-    console.log("Edit Priority with ID:");
+    console.log("Edit Project with ID:");
   };
 
   const handleUdate = () => {
     if (addedTaskDescription.trim() === "") {
-      setInputError("Priority must not be empty");
+      setInputError("Project must not be empty");
       return;
     }
 
-    updatePriorityMutation.mutate(
+    updateStatusMutation.mutate(
       {
         id: seletedEditId,
         body: {
@@ -124,20 +115,20 @@ export default function Priorities() {
           setInputError("");
         },
         onError: (error) => {
-          console.error("Error adding Priority:", error);
-          setInputError("Failed to add priority");
+          console.error("Error adding Project:", error);
+          setInputError("Failed to add project");
         },
       }
     );
 
-    console.log("Edit Priority with ID:");
+    console.log("Edit Project with ID:");
   };
 
   const handleEdit = async (id: number) => {
     try {
       const data = await queryClient.fetchQuery({
-        queryKey: [keys.GET_BY_ID_PRIORITIES, id],
-        queryFn: () => getByIdPriorities(id),
+        queryKey: [keys.GET_BY_ID_STATUS, id],
+        queryFn: () => getByIdStatus(id),
         staleTime: 0,
         gcTime: 0,
       });
@@ -148,22 +139,22 @@ export default function Priorities() {
         setIsAddNew(false);
       }
     } catch (error) {
-      console.error("Error fetching task type:", error);
+      console.error("Error fetching Project:", error);
     }
   };
 
   const handleDelete = (id: number) => {
-    console.log("Delete task type with ID:", id);
+    console.log("Delete Project with ID:", id);
 
-    deletePriorityMutation.mutate(id, {
+    deleteStatusMutation.mutate(id, {
       onSuccess: () => {
         setAddedTaskDescription("");
         setIsAddNew(false);
         setInputError("");
       },
       onError: (error) => {
-        console.error("Error adding task type:", error);
-        setInputError("Failed to add task type");
+        console.error("Error adding Project:", error);
+        setInputError("Failed to add Project");
       },
     });
   };
@@ -180,7 +171,7 @@ export default function Priorities() {
     <>
       <div className="min-h-screen w-full px-6 py-6 bg-gray-50 overflow-x-hidden">
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-2xl font-semibold">Priorities</h1>
+          <h1 className="text-2xl font-semibold">Project</h1>
           <div className="flex gap-2 w-full md:w-auto">
             <Input
               placeholder="Search by name..."
@@ -194,7 +185,7 @@ export default function Priorities() {
                 setIsAddNew(true);
               }}
             >
-              Add New Priority
+              Add New Project
             </Button>
           </div>
         </div>
@@ -222,13 +213,13 @@ export default function Priorities() {
                     >
                       Edit
                     </Button>
-                    <Button
+                    {/* <Button
                       variant="destructive"
                       size="sm"
                       onClick={() => handleDelete(task.n_Id)}
                     >
                       Delete
-                    </Button>
+                    </Button> */}
                   </TableCell>
                 </TableRow>
               ))}
@@ -240,16 +231,16 @@ export default function Priorities() {
         <Dialog open={isAddNew || isEdit} onOpenChange={() => handleDialog()}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Priority</DialogTitle>
+              <DialogTitle>Add New Project</DialogTitle>
               <DialogDescription>
-                Please enter a description for the new priority.
+                Please enter a description for the new project.
               </DialogDescription>
             </DialogHeader>
 
             {/* Move the input and validation outside of DialogDescription */}
             <div className="space-y-2 mt-4">
               <Input
-                placeholder="Enter priority..."
+                placeholder="Enter project name..."
                 value={addedTaskDescription}
                 onChange={(e) => {
                   setAddedTaskDescription(e.target.value);

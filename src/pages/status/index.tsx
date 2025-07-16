@@ -20,24 +20,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { useQueryClient } from "@tanstack/react-query";
 
+import { useGetAllStatus, getByIdStatus } from "../../hooks/common/query/index";
 import {
-  useGetAllPriorities,
-  getByIdPriorities,
-} from "../../hooks/common/query/index";
-import {
-  useAddPriority,
-  useUpdatePriority,
-  useDeletePriority,
+  useAddStatus,
+  useUpdateStatus,
+  useDeleteStatus,
 } from "../../hooks/common/mutation/index";
 
 import { keys } from "../../hooks/common/keys";
 
-type PrioritiesInterfance = {
+type StatusInterfance = {
   n_Id: number;
   s_Description: string;
 };
 
-export default function Priorities() {
+export default function Status() {
   const queryClient = useQueryClient();
 
   const [search, setSearch] = useState("");
@@ -48,33 +45,24 @@ export default function Priorities() {
   const [addedTaskDescription, setAddedTaskDescription] = useState("");
   const [inputError, setInputError] = useState("");
 
-  const [prioritiesDetails, setPrioritiesDetails] = useState<
-    PrioritiesInterfance[]
-  >([]);
+  const [statusDetails, setStatusDetails] = useState<StatusInterfance[]>([]);
 
-  const { data: prioritiesData } = useGetAllPriorities();
-  const addPriorityMutation = useAddPriority();
-  const updatePriorityMutation = useUpdatePriority();
-  const deletePriorityMutation = useDeletePriority(seletedId);
+  const { data: statusData } = useGetAllStatus();
+  const addStatusMutation = useAddStatus();
+  const updateStatusMutation = useUpdateStatus();
+  const deleteStatusMutation = useDeleteStatus(seletedId);
 
   // const { data: priorityDetails, refetch: refetchTaskType } =
   //   useGetByIdPriorities(seletedEditId > 0 ? seletedEditId : 0);
 
   useEffect(() => {
-    if (prioritiesData) {
-      setPrioritiesDetails(prioritiesData);
+    if (statusData) {
+      setStatusDetails(statusData);
     }
-  }, [
-    prioritiesData,
-    seletedId,
-    seletedEditId,
-    //priorityDetails,
-    isEdit,
-    isAddNew,
-  ]);
+  }, [statusData, seletedId, seletedEditId, isEdit, isAddNew]);
 
-  const filteredTaskTypes = prioritiesDetails.filter((priority) =>
-    priority.s_Description.toLowerCase().includes(search.toLowerCase())
+  const filteredTaskTypes = statusDetails.filter((status) =>
+    status.s_Description.toLowerCase().includes(search.toLowerCase())
   );
 
   const handleSave = () => {
@@ -82,7 +70,7 @@ export default function Priorities() {
       setInputError("Priority must not be empty");
       return;
     }
-    addPriorityMutation.mutate(
+    addStatusMutation.mutate(
       {
         s_Description: addedTaskDescription,
       },
@@ -109,7 +97,7 @@ export default function Priorities() {
       return;
     }
 
-    updatePriorityMutation.mutate(
+    updateStatusMutation.mutate(
       {
         id: seletedEditId,
         body: {
@@ -136,8 +124,8 @@ export default function Priorities() {
   const handleEdit = async (id: number) => {
     try {
       const data = await queryClient.fetchQuery({
-        queryKey: [keys.GET_BY_ID_PRIORITIES, id],
-        queryFn: () => getByIdPriorities(id),
+        queryKey: [keys.GET_BY_ID_STATUS, id],
+        queryFn: () => getByIdStatus(id),
         staleTime: 0,
         gcTime: 0,
       });
@@ -155,7 +143,7 @@ export default function Priorities() {
   const handleDelete = (id: number) => {
     console.log("Delete task type with ID:", id);
 
-    deletePriorityMutation.mutate(id, {
+    deleteStatusMutation.mutate(id, {
       onSuccess: () => {
         setAddedTaskDescription("");
         setIsAddNew(false);
@@ -180,7 +168,7 @@ export default function Priorities() {
     <>
       <div className="min-h-screen w-full px-6 py-6 bg-gray-50 overflow-x-hidden">
         <div className="w-full flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-2xl font-semibold">Priorities</h1>
+          <h1 className="text-2xl font-semibold">Status</h1>
           <div className="flex gap-2 w-full md:w-auto">
             <Input
               placeholder="Search by name..."
@@ -194,7 +182,7 @@ export default function Priorities() {
                 setIsAddNew(true);
               }}
             >
-              Add New Priority
+              Add New Status
             </Button>
           </div>
         </div>
@@ -240,16 +228,16 @@ export default function Priorities() {
         <Dialog open={isAddNew || isEdit} onOpenChange={() => handleDialog()}>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle>Add New Priority</DialogTitle>
+              <DialogTitle>Add New Status</DialogTitle>
               <DialogDescription>
-                Please enter a description for the new priority.
+                Please enter a description for the new status.
               </DialogDescription>
             </DialogHeader>
 
             {/* Move the input and validation outside of DialogDescription */}
             <div className="space-y-2 mt-4">
               <Input
-                placeholder="Enter priority..."
+                placeholder="Enter status..."
                 value={addedTaskDescription}
                 onChange={(e) => {
                   setAddedTaskDescription(e.target.value);

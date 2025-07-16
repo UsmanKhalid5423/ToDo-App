@@ -24,15 +24,15 @@
 
 // export default App
 
-
 // src/App.tsx
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom"
-import { Login } from "./pages/login"
-import Layout from "./layout"
-import Dashboard from "./pages/dashboard"
-import TaskTypesList from "./pages/taskTypes"
-import Priorities from "./pages/priorities" 
-
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Login } from "./pages/login";
+import Layout from "./layout";
+import Dashboard from "./pages/dashboard";
+import TaskTypesList from "./pages/taskTypes";
+import Priorities from "./pages/priorities";
+import Status from "./pages/status";
+import Project from "./pages/project";
 
 function App() {
   return (
@@ -45,10 +45,12 @@ function App() {
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="task-types" element={<TaskTypesList />} />
           <Route path="priorities" element={<Priorities />} />
+          <Route path="status" element={<Status />} />
+          <Route path="project" element={<Project />} />
         </Route>
       </Routes>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;
