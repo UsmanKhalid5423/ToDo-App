@@ -7,6 +7,7 @@ import type { DragItem } from "./Item";
 import { Plus } from "lucide-react";
 import AddBucket from "./addBucket";
 import { useGetAllBuckets } from "../../hooks/common/query";
+import { useUpdateTaskBucket } from "../../hooks/common/mutation";
 
 interface ProjectBucketTasks {
   n_Id: number;
@@ -26,38 +27,35 @@ const DragDropPage: React.FC = () => {
   const { id } = useParams();
   const projectId = Number(id);
 
-  console.log("projectId == ", projectId);
-
   const [lastMove, setLastMove] = useState<string>("");
   const [isAddNew, setIsAddNew] = useState(false);
   const [buckets, setBuckets] = useState<BucketData[]>([]);
+  const [taskId, setTaskId] = useState<number>(0);
+
   // const { data: bucketsData, refetch: refetchBucketsData } = useGetAllBuckets(projectId);
   const { data: bucketsData, refetch } = useGetAllBuckets(projectId);
+
+  const updateTaskMutation = useUpdateTaskBucket();
 
   // const handleDrop = (item: DragItem, toBucketId: string) => {
   const handleDrop = (item: ProjectBucketTasks, toBucketId: number) => {
     if (item.n_FromBucketId === toBucketId) return;
 
     setBuckets((prevBuckets) => {
-      const updatedBuckets = prevBuckets.map((bucket) => {
+      return prevBuckets.map((bucket) => {
         if (bucket.n_Id === item.n_FromBucketId) {
           return {
             ...bucket,
-            items: bucket.tasks.filter((i) => i.n_Id !== item.n_Id),
+            tasks: bucket.tasks.filter((task) => task.n_Id !== item.n_Id),
           };
-        }
-
-        if (bucket.n_Id === toBucketId) {
+        } else if (bucket.n_Id === toBucketId) {
           return {
             ...bucket,
-            items: [...bucket.tasks, { ...item, fromBucketId: toBucketId }],
+            tasks: [...bucket.tasks, { ...item, n_FromBucketId: toBucketId }],
           };
         }
-
         return bucket;
       });
-
-      return updatedBuckets;
     });
 
     const fromBucket = buckets.find(
@@ -65,7 +63,36 @@ const DragDropPage: React.FC = () => {
     )?.s_Description;
     const toBucket = buckets.find((b) => b.n_Id === toBucketId)?.s_Description;
 
+    // need to call update api
     setLastMove(`Moved "${item.S_Title}" from ${fromBucket} to ${toBucket}`);
+
+    console.log(
+      `Moved "${item.S_Title}" "${item.n_Id}" from ${fromBucket} to ${toBucket}`
+    );
+
+    updateTaskMutation.mutate(
+      {
+        id: Number(item.n_Id),
+        body: {
+          N_BucketId: toBucketId,
+        },
+      },
+      {
+        onSuccess: () => {
+          // setFormData({
+          //   taskName: "",
+          //   taskDescription: "",
+          //   dueDate: "",
+          //   priority: "",
+          //   assignedTo: "",
+          // });
+          setIsAddNew(false);
+        },
+        onError: (error) => {
+          console.error("Error adding task:", error);
+        },
+      }
+    );
   };
 
   const handleAddBucket = () => {
@@ -76,8 +103,23 @@ const DragDropPage: React.FC = () => {
     if (projectId) {
       refetch();
     }
+
     if (bucketsData && Array.isArray(bucketsData)) {
-      setBuckets(bucketsData);
+      const transformed = bucketsData.map((bucket) => ({
+        n_Id: bucket.n_BucketId,
+        s_Description: bucket.s_Description,
+        tasks: bucket.tasks.map((task) => ({
+          ...task,
+          S_Title: task.s_Title,
+          S_Description: task.s_Description,
+          n_FromBucketId: task.n_BucketId, // for drag source
+          StatusDescription: task.statusDescription,
+          PriorityDescription: task.priorityDescription,
+          TaskTypeDescription: task.taskTypeDescription,
+        })),
+      }));
+
+      setBuckets(transformed);
     } else {
       setBuckets([]);
     }
@@ -103,6 +145,8 @@ const DragDropPage: React.FC = () => {
               name={bucket.s_Description}
               items={bucket.tasks || []}
               onDrop={handleDrop}
+              bucketId={bucket.n_Id}
+              projectId={projectId}
             />
           ))
         ) : (

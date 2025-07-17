@@ -11,16 +11,28 @@ interface ProjectBucketTasks {
   S_Title: string;
   S_Description: string;
   n_FromBucketId: number;
+  StatusDescription: string;
+  PriorityDescription: string;
+  TaskTypeDescription: string;
 }
 
 interface BucketProps {
   id: number;
+  bucketId: number;
+  projectId: number;
   name: string;
   items: ProjectBucketTasks[];
   onDrop: (item: ProjectBucketTasks, toBucketId: number) => void;
 }
 
-const Bucket: React.FC<BucketProps> = ({ id, name, items, onDrop }) => {
+const Bucket: React.FC<BucketProps> = ({
+  id,
+  name,
+  items,
+  bucketId,
+  projectId,
+  onDrop,
+}) => {
   const [, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
     drop: (item: ProjectBucketTasks) => onDrop(item, id),
@@ -35,7 +47,7 @@ const Bucket: React.FC<BucketProps> = ({ id, name, items, onDrop }) => {
   return (
     <div
       ref={drop}
-      className="m-2 p-4 min-w-72 h-80 shrink-0 bg-gray-100 border-2 border-gray-400 rounded-md flex flex-col"
+      className="m-2 p-4 min-w-72 h-screen shrink-0 bg-gray-100 border-2 border-gray-400 rounded-md flex flex-col"
     >
       <div className="mb-3 flex justify-between items-center">
         <strong>{name}</strong>
@@ -50,7 +62,16 @@ const Bucket: React.FC<BucketProps> = ({ id, name, items, onDrop }) => {
         {items.length > 0 ? (
           items.map((item) => (
             // <Item key={item.n_Id} {...item} fromBucketId={id} />
-            <Item key={item.n_Id} {...item} fromBucketId={item.n_Id} />
+            <Item
+              key={item.n_Id}
+              n_Id={item.n_Id}
+              S_Title={item.S_Title}
+              S_Description={item.S_Description}
+              n_FromBucketId={id}
+              StatusDescription={item.StatusDescription}
+              PriorityDescription={item.PriorityDescription}
+              TaskTypeDescription={item.TaskTypeDescription}
+            />
           ))
         ) : (
           <p className="text-gray-500 italic">No items</p>
@@ -59,7 +80,8 @@ const Bucket: React.FC<BucketProps> = ({ id, name, items, onDrop }) => {
       <AddTask
         isAddNew={isAddNew}
         setIsAddNew={setIsAddNew}
-        defaultProjectId={1}
+        defaultProjectId={projectId}
+        bucketId={bucketId}
       />
     </div>
   );

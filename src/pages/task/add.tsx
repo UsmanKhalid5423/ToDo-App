@@ -15,20 +15,24 @@ import {
   useGetAllStatus,
   useGetAllTaskTypes,
   useGetAllTasks,
+  useGetAllDevelopers,
 } from "../../hooks/common/query/index";
 
 import { MultiSelect } from "@/components/ui/multiSelect";
+
 import {
   Select,
-  SelectContent,
-  SelectItem,
   SelectTrigger,
   SelectValue,
+  SelectContent,
+  SelectItem,
 } from "@/components/ui/select";
+
 interface AddBucketProps {
   isAddNew: boolean;
   setIsAddNew: (value: boolean) => void;
   defaultProjectId: number;
+  bucketId: number;
 }
 
 // Define interface for form data
@@ -59,11 +63,12 @@ export default function AddTask({
   isAddNew,
   setIsAddNew,
   defaultProjectId,
+  bucketId,
 }: AddBucketProps) {
   const [formData, setFormData] = useState<FormData>({
     S_Title: "",
     S_Description: "",
-    N_BucketId: 0,
+    N_BucketId: bucketId,
     N_PriorityId: 0,
     N_TaskTypeId: 0,
     N_StatusId: 0,
@@ -71,13 +76,14 @@ export default function AddTask({
   });
 
   const [inputError, setInputError] = useState("");
-  const [selectedFruits, setSelectedFruits] = useState<string[]>([]);
+  const [selectedDevelopers, setSelectedDevelopers] = useState<string[]>([]);
 
   const addBucketMutation = useAddBucket();
   const addTaskMutation = useAddTask();
   const { data: prioritiesData } = useGetAllPriorities();
   const { data: tasksData } = useGetAllTaskTypes();
   const { data: statusesData } = useGetAllStatus();
+  const { data: developersData } = useGetAllDevelopers();
 
   const handleChange = (selected: string[]) => {
     setSelectedFruits(selected);
@@ -106,7 +112,7 @@ export default function AddTask({
         N_TaskTypeId: formData.N_TaskTypeId,
         N_StatusId: formData.N_StatusId,
         N_ProjectId: formData.N_ProjectId,
-        N_BucketId: 1,
+        N_BucketId: bucketId,
       },
       {
         onSuccess: () => {
@@ -169,7 +175,11 @@ export default function AddTask({
             className="h-40"
           />
           <Select
-            value={formData.N_PriorityId.toString()}
+            value={
+              formData.N_PriorityId
+                ? formData.N_PriorityId.toString()
+                : undefined
+            }
             onValueChange={(value) =>
               setFormData((prev) => ({
                 ...prev,
@@ -180,20 +190,46 @@ export default function AddTask({
             <SelectTrigger className="w-full">
               <SelectValue placeholder="Select Priority" />
             </SelectTrigger>
+
             <SelectContent>
-              {prioritiesData &&
-                prioritiesData.map((priority: PrioritiesInterfance) => (
-                  <SelectItem
-                    key={priority.n_Id}
-                    value={priority.n_Id.toString()}
-                  >
-                    {priority.s_Description}
-                  </SelectItem>
-                ))}
+              {prioritiesData?.map((priority: PrioritiesInterfance) => (
+                <SelectItem
+                  key={priority.n_Id}
+                  value={priority.n_Id.toString()}
+                >
+                  {priority.s_Description}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
 
           <Select
+            value={
+              formData.N_TaskTypeId
+                ? formData.N_TaskTypeId.toString()
+                : undefined
+            }
+            onValueChange={(value) =>
+              setFormData((prev) => ({
+                ...prev,
+                N_TaskTypeId: parseInt(value),
+              }))
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Task Type" />
+            </SelectTrigger>
+
+            <SelectContent>
+              {tasksData?.map((task: any) => (
+                <SelectItem key={task.n_Id} value={task.n_Id.toString()}>
+                  {task.s_Description}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* <Select
             value={formData.N_TaskTypeId.toString()}
             onValueChange={(value) =>
               setFormData((prev) => ({
@@ -213,9 +249,33 @@ export default function AddTask({
                   </SelectItem>
                 ))}
             </SelectContent>
-          </Select>
+          </Select> */}
 
           <Select
+            value={
+              formData.N_StatusId ? formData.N_StatusId.toString() : undefined
+            }
+            onValueChange={(value) =>
+              setFormData((prev) => ({
+                ...prev,
+                N_StatusId: parseInt(value),
+              }))
+            }
+          >
+            <SelectTrigger className="w-full">
+              <SelectValue placeholder="Select Status" />
+            </SelectTrigger>
+
+            <SelectContent>
+              {statusesData?.map((status: any) => (
+                <SelectItem key={status.n_Id} value={status.n_Id.toString()}>
+                  {status.s_Description}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+
+          {/* <Select
             value={formData.N_StatusId.toString()}
             onValueChange={(value) =>
               setFormData((prev) => ({
@@ -235,7 +295,7 @@ export default function AddTask({
                   </SelectItem>
                 ))}
             </SelectContent>
-          </Select>
+          </Select> */}
 
           {/* 
           <Input
@@ -252,16 +312,21 @@ export default function AddTask({
             value={formData.priority}
             onChange={handleInputChange}
           /> */}
-          {/* 
           <MultiSelect
-            options={OPTIONS}
-            onValueChange={setSelectedFruits}
-            defaultValue={selectedFruits}
-            placeholder="Select frameworks"
+            options={
+              developersData?.map((dev: any) => ({
+                label: dev.s_FullName,
+                value: dev.n_Id,
+                icon: dev.iconComponent,
+              })) ?? []
+            }
+            onValueChange={setSelectedDevelopers}
+            defaultValue={selectedDevelopers}
+            placeholder="Select Assignee"
             variant="inverted"
             animation={2}
             maxCount={3}
-          /> */}
+          />
 
           {/* <Input
             name="assignedTo"

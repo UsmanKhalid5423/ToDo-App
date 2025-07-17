@@ -37,4 +37,8 @@ export const keys = {
   DELETE_TASKS: "DELETE_TASKS",
   GET_BY_ID_TASKS: "GET_BY_ID_TASKS",
   UPDATE_TASKS: "UPDATE_TASKS",
+  UPDATE_TASKS_BUCKET: "UPDATE_TASKS_BUCKET",
+
+  // Keys for Users
+  GET_ALLL_Developers: "GET_ALLL_Developers",
 };

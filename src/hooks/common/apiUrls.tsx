@@ -36,4 +36,8 @@ export const apiUrl = {
   DELETE_TASKS: "Tasks/Delete",
   GET_BY_ID_TASKS: "Tasks/Get",
   UPDATE_TASKS: "Tasks/Update",
+  UPDATE_TASKS_BUCKET: "Tasks/UpdateBucket",
+
+  // urls for Users
+  GET_ALLL_Developers: "Users/GetAllDevelopers",
 };

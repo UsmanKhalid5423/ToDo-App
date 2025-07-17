@@ -36,7 +36,7 @@ export const handleFetchError = async (res: any) => {
     throw errRes;
   }
   // return res.json();
-  console.log('res',res)
+  // console.log('res',res)
 
   return res && res.status !== 204 ? res.json() : null;
 
