@@ -6,17 +6,24 @@ import type { DragItem } from "./Item";
 import { Plus } from "lucide-react";
 import AddTask from "./../task/add";
 
+interface ProjectBucketTasks {
+  n_Id: number;
+  S_Title: string;
+  S_Description: string;
+  n_FromBucketId: number;
+}
+
 interface BucketProps {
-  id: string;
+  id: number;
   name: string;
-  items: DragItem[];
-  onDrop: (item: DragItem, toBucketId: string) => void;
+  items: ProjectBucketTasks[];
+  onDrop: (item: ProjectBucketTasks, toBucketId: number) => void;
 }
 
 const Bucket: React.FC<BucketProps> = ({ id, name, items, onDrop }) => {
   const [, drop] = useDrop(() => ({
     accept: ItemTypes.CARD,
-    drop: (item: DragItem) => onDrop(item, id),
+    drop: (item: ProjectBucketTasks) => onDrop(item, id),
   }));
 
   const [isAddNew, setIsAddNew] = useState(false);
@@ -42,7 +49,8 @@ const Bucket: React.FC<BucketProps> = ({ id, name, items, onDrop }) => {
       <div className="flex-1 overflow-y-auto">
         {items.length > 0 ? (
           items.map((item) => (
-            <Item key={item.id} {...item} fromBucketId={id} />
+            // <Item key={item.n_Id} {...item} fromBucketId={id} />
+            <Item key={item.n_Id} {...item} fromBucketId={item.n_Id} />
           ))
         ) : (
           <p className="text-gray-500 italic">No items</p>

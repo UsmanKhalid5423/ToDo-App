@@ -8,10 +8,18 @@ import { Plus } from "lucide-react";
 import AddBucket from "./addBucket";
 import { useGetAllBuckets } from "../../hooks/common/query";
 
+interface ProjectBucketTasks {
+  n_Id: number;
+  S_Title: string;
+  S_Description: string;
+  n_FromBucketId: number;
+}
+
 interface BucketData {
-  n_Id: string;
+  n_Id: number;
   s_Description: string;
-  items: DragItem[];
+  // items: DragItem[];
+  tasks: ProjectBucketTasks[];
 }
 
 const DragDropPage: React.FC = () => {
@@ -26,22 +34,23 @@ const DragDropPage: React.FC = () => {
   // const { data: bucketsData, refetch: refetchBucketsData } = useGetAllBuckets(projectId);
   const { data: bucketsData, refetch } = useGetAllBuckets(projectId);
 
-  const handleDrop = (item: DragItem, toBucketId: string) => {
-    if (item.fromBucketId === toBucketId) return;
+  // const handleDrop = (item: DragItem, toBucketId: string) => {
+  const handleDrop = (item: ProjectBucketTasks, toBucketId: number) => {
+    if (item.n_FromBucketId === toBucketId) return;
 
     setBuckets((prevBuckets) => {
       const updatedBuckets = prevBuckets.map((bucket) => {
-        if (bucket.n_Id === item.fromBucketId) {
+        if (bucket.n_Id === item.n_FromBucketId) {
           return {
             ...bucket,
-            items: bucket.items.filter((i) => i.id !== item.id),
+            items: bucket.tasks.filter((i) => i.n_Id !== item.n_Id),
           };
         }
 
         if (bucket.n_Id === toBucketId) {
           return {
             ...bucket,
-            items: [...bucket.items, { ...item, fromBucketId: toBucketId }],
+            items: [...bucket.tasks, { ...item, fromBucketId: toBucketId }],
           };
         }
 
@@ -52,11 +61,11 @@ const DragDropPage: React.FC = () => {
     });
 
     const fromBucket = buckets.find(
-      (b) => b.n_Id === item.fromBucketId
+      (b) => b.n_Id === item.n_FromBucketId
     )?.s_Description;
     const toBucket = buckets.find((b) => b.n_Id === toBucketId)?.s_Description;
 
-    setLastMove(`Moved "${item.name}" from ${fromBucket} to ${toBucket}`);
+    setLastMove(`Moved "${item.S_Title}" from ${fromBucket} to ${toBucket}`);
   };
 
   const handleAddBucket = () => {
@@ -92,7 +101,7 @@ const DragDropPage: React.FC = () => {
               key={bucket.n_Id}
               id={bucket.n_Id}
               name={bucket.s_Description}
-              items={bucket.items || []}
+              items={bucket.tasks || []}
               onDrop={handleDrop}
             />
           ))
@@ -102,12 +111,13 @@ const DragDropPage: React.FC = () => {
       </div>
 
       {lastMove && <div className="mt-5 italic text-green-600">{lastMove}</div>}
-
-      <AddBucket
-        isAddNew={isAddNew}
-        setIsAddNew={setIsAddNew}
-        defaultProjectId={projectId}
-      />
+      {isAddNew && (
+        <AddBucket
+          isAddNew={isAddNew}
+          setIsAddNew={setIsAddNew}
+          defaultProjectId={projectId}
+        />
+      )}
     </DndProvider>
   );
 };

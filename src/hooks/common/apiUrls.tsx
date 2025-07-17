@@ -29,4 +29,11 @@ export const apiUrl = {
   DELETE_BUCKET: "Bucket/Delete",
   GET_BY_ID_BUCKET: "Bucket/Get",
   UPDATE_BUCKET: "Bucket/Update",
+
+  // urls for Tasks
+  GET_ALLL_TASKS: "Tasks/GetAll",
+  ADD_TASKS: "Tasks/Create",
+  DELETE_TASKS: "Tasks/Delete",
+  GET_BY_ID_TASKS: "Tasks/Get",
+  UPDATE_TASKS: "Tasks/Update",
 };

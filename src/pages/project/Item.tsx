@@ -9,15 +9,15 @@ export interface DragItem {
 }
 
 interface ItemProps {
-  id: string;
-  name: string;
-  fromBucketId: string;
+  n_Id: number;
+  s_Title: string;
+  fromBucketId: number;
 }
 
-const Item: React.FC<ItemProps> = ({ id, name, fromBucketId }) => {
+const Item: React.FC<ItemProps> = ({ n_Id, s_Title, fromBucketId }) => {
   const [, drag] = useDrag(() => ({
     type: ItemTypes.CARD,
-    item: { id, name, fromBucketId },
+    item: { n_Id, s_Title, fromBucketId },
   }));
 
   return (
@@ -30,7 +30,7 @@ const Item: React.FC<ItemProps> = ({ id, name, fromBucketId }) => {
         border: "1px solid #ccc",
       }}
     >
-      {name}
+      {s_Title}
     </div>
   );
 };
