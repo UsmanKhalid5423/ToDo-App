@@ -34,6 +34,7 @@ import Priorities from "./pages/priorities";
 import Status from "./pages/status";
 import Project from "./pages/project";
 import DragDropPage from "./pages/project/DragDropPage";
+import TaskDetails from "./pages/task/details";
 
 function App() {
   return (
@@ -49,6 +50,7 @@ function App() {
           <Route path="status" element={<Status />} />
           <Route path="project" element={<Project />} />
           <Route path="project-details/:id" element={<DragDropPage />} />
+          <Route path="task-details/:id" element={<TaskDetails />} />
         </Route>
       </Routes>
     </Router>

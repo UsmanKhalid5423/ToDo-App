@@ -9,12 +9,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { useAddBucket, useAddTask } from "../../hooks/common/mutation";
+
+import {FileUploadDemo} from "@/components/ui/FileUploadDemo";
+
+import { useAddTask } from "../../hooks/common/mutation";
 import {
   useGetAllPriorities,
   useGetAllStatus,
   useGetAllTaskTypes,
-  useGetAllTasks,
   useGetAllDevelopers,
 } from "../../hooks/common/query/index";
 
@@ -52,12 +54,10 @@ type PrioritiesInterfance = {
   s_Description: string;
 };
 
-const OPTIONS = [
-  { label: "Apple", value: "apple" },
-  { label: "Orange", value: "orange" },
-  { label: "Banana", value: "banana" },
-  { label: "Grape", value: "grape" },
-];
+interface TaskAssigneeType {
+  N_UserId: number | string;
+  N_ProjectId: number;
+}
 
 export default function AddTask({
   isAddNew,
@@ -76,20 +76,15 @@ export default function AddTask({
   });
 
   const [inputError, setInputError] = useState("");
-  const [selectedDevelopers, setSelectedDevelopers] = useState<string[]>([]);
+  const [selectedDevelopers, setSelectedDevelopers] = useState<number[]>([]);
 
-  const addBucketMutation = useAddBucket();
   const addTaskMutation = useAddTask();
   const { data: prioritiesData } = useGetAllPriorities();
   const { data: tasksData } = useGetAllTaskTypes();
   const { data: statusesData } = useGetAllStatus();
   const { data: developersData } = useGetAllDevelopers();
 
-  const handleChange = (selected: string[]) => {
-    setSelectedFruits(selected);
-    console.log("selectd values", selectedFruits);
-  };
-  // console.log("selectd values", selectedFruits);
+  console.log("selectd values", selectedDevelopers);
 
   // Generic change handler for inputs and textarea
   const handleInputChange = (
@@ -104,6 +99,14 @@ export default function AddTask({
   };
 
   const handleSave = () => {
+    const TaskAssignee: TaskAssigneeType[] = [];
+
+    for (let i = 0; i < selectedDevelopers.length; i++) {
+      TaskAssignee.push({
+        N_UserId: selectedDevelopers[i],
+        N_ProjectId: formData.N_ProjectId,
+      });
+    }
     addTaskMutation.mutate(
       {
         S_Title: formData.S_Title,
@@ -113,6 +116,7 @@ export default function AddTask({
         N_StatusId: formData.N_StatusId,
         N_ProjectId: formData.N_ProjectId,
         N_BucketId: bucketId,
+        TaskAssignee,
       },
       {
         onSuccess: () => {
@@ -229,28 +233,6 @@ export default function AddTask({
             </SelectContent>
           </Select>
 
-          {/* <Select
-            value={formData.N_TaskTypeId.toString()}
-            onValueChange={(value) =>
-              setFormData((prev) => ({
-                ...prev,
-                N_TaskTypeId: parseInt(value),
-              }))
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Task Type" />
-            </SelectTrigger>
-            <SelectContent>
-              {tasksData &&
-                tasksData.map((task: any) => (
-                  <SelectItem key={task.n_Id} value={task.n_Id.toString()}>
-                    {task.s_Description}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select> */}
-
           <Select
             value={
               formData.N_StatusId ? formData.N_StatusId.toString() : undefined
@@ -275,43 +257,6 @@ export default function AddTask({
             </SelectContent>
           </Select>
 
-          {/* <Select
-            value={formData.N_StatusId.toString()}
-            onValueChange={(value) =>
-              setFormData((prev) => ({
-                ...prev,
-                N_StatusId: parseInt(value),
-              }))
-            }
-          >
-            <SelectTrigger className="w-full">
-              <SelectValue placeholder="Select Status" />
-            </SelectTrigger>
-            <SelectContent>
-              {statusesData &&
-                statusesData.map((status: any) => (
-                  <SelectItem key={status.n_Id} value={status.n_Id.toString()}>
-                    {status.s_Description}
-                  </SelectItem>
-                ))}
-            </SelectContent>
-          </Select> */}
-
-          {/* 
-          <Input
-            name="dueDate"
-            placeholder="Enter due date"
-            type="date"
-            value={formData.dueDate}
-            onChange={handleInputChange}
-          /> */}
-
-          {/* <Input
-            name="priority"
-            placeholder="Enter priority"
-            value={formData.priority}
-            onChange={handleInputChange}
-          /> */}
           <MultiSelect
             options={
               developersData?.map((dev: any) => ({
@@ -328,12 +273,7 @@ export default function AddTask({
             maxCount={3}
           />
 
-          {/* <Input
-            name="assignedTo"
-            placeholder="Assign to"
-            value={formData.assignedTo}
-            onChange={handleInputChange}
-          /> */}
+          <FileUploadDemo />
         </div>
 
         <div className="mt-6 flex justify-end gap-2">

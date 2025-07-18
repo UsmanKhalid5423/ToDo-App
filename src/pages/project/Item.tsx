@@ -1,7 +1,7 @@
 import React from "react";
 import { useDrag } from "react-dnd";
 import { ItemTypes } from "./ItemTypes";
-import Status from "./../status/index";
+import { useNavigate } from "react-router-dom";
 
 export interface DragItem {
   id: string;
@@ -33,9 +33,16 @@ const Item: React.FC<ItemProps> = ({
     item: { n_Id, S_Title, n_FromBucketId },
   }));
 
+  const navigate = useNavigate();
+
+  const handleClick = () => {
+    navigate(`/task-details/${n_Id}`);
+  };
+
   return (
     <div
       ref={drag}
+      onClick={handleClick}
       className="p-2 m-1 bg-white border border-gray-300 rounded shadow-sm h-36"
     >
       <h3 className="text-lg font-bold text-gray-800">{S_Title}</h3>
