@@ -2,11 +2,17 @@
 import React, { useState } from "react";
 import { FileUpload } from "@/components/ui/file-upload";
 
-export function FileUploadDemo() {
+export function FileUploadDemo({
+  onFilesChange,
+}: {
+  onFilesChange: (files: File[]) => void;
+}) {
   const [files, setFiles] = useState<File[]>([]);
-  const handleFileUpload = (files: File[]) => {
-    setFiles(files);
-    console.log(files);
+
+  const handleFileUpload = (newFiles: File[]) => {
+    setFiles(newFiles);
+    console.log(newFiles);
+    onFilesChange(newFiles); // ✅ Notify parent
   };
 
   return (

@@ -10,7 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 
-import {FileUploadDemo} from "@/components/ui/FileUploadDemo";
+import { FileUploadDemo } from "@/components/ui/FileUploadDemo";
 
 import { useAddTask } from "../../hooks/common/mutation";
 import {
@@ -84,6 +84,8 @@ export default function AddTask({
   const { data: statusesData } = useGetAllStatus();
   const { data: developersData } = useGetAllDevelopers();
 
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+
   console.log("selectd values", selectedDevelopers);
 
   // Generic change handler for inputs and textarea
@@ -98,7 +100,36 @@ export default function AddTask({
     if (inputError) setInputError("");
   };
 
-  const handleSave = () => {
+  const fileToBase64 = (file: File): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string") {
+          // Remove data:...;base64, if needed
+          const base64Content = result.split(",")[1];
+          resolve(base64Content);
+        } else {
+          reject("File reading failed");
+        }
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file); // Base64 encoded
+    });
+  };
+
+  const handleSave = async () => {
+    const TaskDocuments = await Promise.all(
+      uploadedFiles.map(async (file) => {
+        const content = await fileToBase64(file);
+        return {
+          S_FileContent: content, // base64 encoded
+          S_FileContentType: file.type,
+          N_ProjectId: formData.N_ProjectId,
+        };
+      })
+    );
+
     const TaskAssignee: TaskAssigneeType[] = [];
 
     for (let i = 0; i < selectedDevelopers.length; i++) {
@@ -117,6 +148,7 @@ export default function AddTask({
         N_ProjectId: formData.N_ProjectId,
         N_BucketId: bucketId,
         TaskAssignee,
+        TaskDocuments,
       },
       {
         onSuccess: () => {
@@ -273,7 +305,7 @@ export default function AddTask({
             maxCount={3}
           />
 
-          <FileUploadDemo />
+          <FileUploadDemo onFilesChange={setUploadedFiles} />
         </div>
 
         <div className="mt-6 flex justify-end gap-2">

@@ -187,9 +187,8 @@
 //     </div>
 //   );
 // }
-
-import { useParams } from "react-router-dom"; // or your routing logic
 import { useEffect, useState } from "react";
+import { useParams } from "react-router-dom";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -214,7 +213,9 @@ interface TaskDetailsViewProps {
 }
 
 export default function TaskDetailsView({ taskId }: TaskDetailsViewProps) {
-  const { data: task, isLoading, error } = useGetTaskById(3); // Replace with actual taskId
+  const { id } = useParams();
+  const incomingTaskId = Number(id);
+  const { data: task, isLoading, error } = useGetTaskById(incomingTaskId); // Replace 20 with taskId if dynamic
   const { data: prioritiesData } = useGetAllPriorities();
   const { data: statusesData } = useGetAllStatus();
   const { data: taskTypesData } = useGetAllTaskTypes();
@@ -227,6 +228,16 @@ export default function TaskDetailsView({ taskId }: TaskDetailsViewProps) {
         .map((dev) => dev.s_FullName)
         .join(", ") || "N/A"
     );
+  };
+
+  const getFileTypeLabel = (mimeType: string) => {
+    if (mimeType.includes("pdf")) return "PDF Document";
+    if (mimeType.includes("excel")) return "Excel Sheet";
+    if (mimeType.includes("spreadsheet")) return "Spreadsheet";
+    if (mimeType.includes("word")) return "Word Document";
+    if (mimeType.includes("text")) return "Text File";
+    if (mimeType.includes("zip")) return "ZIP Archive";
+    return mimeType.split("/")[1]?.toUpperCase() || "File";
   };
 
   if (isLoading) return <p>Loading...</p>;
@@ -311,6 +322,69 @@ export default function TaskDetailsView({ taskId }: TaskDetailsViewProps) {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Attachments Section */}
+            <div className="mt-6 bg-white p-4 rounded shadow overflow-x-auto whitespace-nowrap">
+              <h2 className="text-lg font-semibold mb-4">
+                Attachments ({task.taskDocuments?.length || 0})
+              </h2>
+
+              {task.taskDocuments && task.taskDocuments.length > 0 ? (
+                <div className="flex flex-row gap-4">
+                  {task.taskDocuments.map((doc: any, index: number) => {
+                    const { s_FileContent, s_FileContentType } = doc;
+                    const fileType = s_FileContentType.split("/")[0];
+                    const fileBlob = new Blob(
+                      [
+                        Uint8Array.from(atob(s_FileContent), (c) =>
+                          c.charCodeAt(0)
+                        ),
+                      ],
+                      { type: s_FileContentType }
+                    );
+                    const fileUrl = URL.createObjectURL(fileBlob);
+                    const openInNewTab = () => window.open(fileUrl, "_blank");
+
+                    return (
+                      <div
+                        key={index}
+                        className="min-w-[130px] flex flex-col items-center p-2 border rounded hover:bg-gray-50 transition cursor-pointer"
+                        onClick={openInNewTab}
+                      >
+                        {fileType === "image" ? (
+                          <img
+                            src={fileUrl}
+                            alt={`Attachment ${index + 1}`}
+                            className="w-24 h-24 object-cover rounded"
+                          />
+                        ) : fileType === "video" ? (
+                          <video className="w-24 h-24 rounded" muted>
+                            <source src={fileUrl} type={s_FileContentType} />
+                          </video>
+                        ) : (
+                          <div className="w-24 h-24 bg-gray-100 flex flex-col items-center justify-center rounded text-center">
+                            <span className="text-sm text-gray-700 px-2">
+                              {getFileTypeLabel(s_FileContentType)}
+                            </span>
+                            <span className="text-xs text-blue-500 mt-1 underline">
+                              Open
+                            </span>
+                          </div>
+                        )}
+
+                        <p className="text-xs text-gray-600 mt-1 text-center">
+                          Attachment {index + 1}
+                        </p>
+                      </div>
+                    );
+                  })}
+                </div>
+              ) : (
+                <p className="text-sm text-gray-500 italic">
+                  No attachments available.
+                </p>
+              )}
+            </div>
           </CardContent>
         </Card>
       </div>
@@ -344,10 +418,7 @@ export default function TaskDetailsView({ taskId }: TaskDetailsViewProps) {
               placeholder="Write a comment..."
               className="h-24 mt-2"
             />
-            <button
-              className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-              // onClick={handleCommentSubmit}
-            >
+            <button className="mt-2 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
               Post Comment
             </button>
           </div>
